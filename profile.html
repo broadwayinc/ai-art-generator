@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Profile</title>
+    <script src="https://cdn.jsdelivr.net/npm/skapi-js@latest/dist/skapi.js"></script>
+    <style>
+        * { box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; margin: 0; padding: 20px; background: #f5f5f5; }
+        .container { max-width: 400px; margin: auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        button { width: 100%; padding: 10px; margin-top: 10px; cursor: pointer; background: #6200ea; color: white; border: none; border-radius: 4px; }
+        button:hover { background: #3700b3; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h2>Your Profile</h2>
+    <div id="info"></div>
+    <form onsubmit="skapi.logout(event)" action="index.html">
+        <button type="submit">Logout</button>
+    </form>
+    <p><a href="index.html">Home</a></p>
+</div>
+<script>
+const skapi = new Skapi('ap22pj9ccK7r2ltoeFEc', 'f8e16604-69e4-451c-9d90-4410f801c006');
+
+skapi.getProfile().then(p => {
+    if(!p){
+        location = 'login.html';
+        return;
+    }
+    document.getElementById('info').innerText = 'Hello ' + (p.name || p.email);
+});
+</script>
+</body>
+</html>
