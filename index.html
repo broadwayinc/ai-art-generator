@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>AI Art Generator</title>
+    <script src="https://cdn.jsdelivr.net/npm/skapi-js@latest/dist/skapi.js"></script>
+    <style>
+        * { box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; margin: 0; padding: 20px; background: #f5f5f5; }
+        .container { max-width: 600px; margin: auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        input, select, button { width: 100%; padding: 10px; margin-top: 10px; }
+        button { cursor: pointer; background: #6200ea; color: white; border: none; border-radius: 4px; }
+        button:hover { background: #3700b3; }
+        #result { margin-top: 20px; width: 100%; }
+        nav { text-align: right; margin-bottom: 20px; }
+        nav a { margin-left: 10px; text-decoration: none; color: #6200ea; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <nav>
+        <a id="login-link" href="login.html">Login</a>
+        <a id="signup-link" href="signup.html">Sign Up</a>
+        <a id="profile-link" href="profile.html" style="display:none;">Profile</a>
+        <form id="logout-form" action="index.html" onsubmit="skapi.logout(event)" style="display:none; display:inline-block;">
+            <button type="submit">Logout</button>
+        </form>
+    </nav>
+    <h1>AI Art Generator</h1>
+    <form id="generate-form">
+        <label>Prompt
+            <input type="text" id="prompt" required>
+        </label>
+        <label>Artist Style
+            <select id="artist">
+                <option>Van Gogh</option>
+                <option>Salvador Dali</option>
+                <option>Frida Kahlo</option>
+                <option>Picasso</option>
+            </select>
+        </label>
+        <button type="submit">Generate</button>
+    </form>
+    <img id="result" alt="Generated image" />
+</div>
+<script>
+    const skapi = new Skapi('ap22pj9ccK7r2ltoeFEc', 'f8e16604-69e4-451c-9d90-4410f801c006');
+
+    skapi.onLogin = (profile) => {
+        document.getElementById('login-link').style.display = profile ? 'none' : '';
+        document.getElementById('signup-link').style.display = profile ? 'none' : '';
+        document.getElementById('profile-link').style.display = profile ? '' : 'none';
+        document.getElementById('logout-form').style.display = profile ? 'inline-block' : 'none';
+    };
+    skapi.getProfile();
+
+    document.getElementById('generate-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const prompt = document.getElementById('prompt').value;
+        const artist = document.getElementById('artist').value;
+        const img = document.getElementById('result');
+        try {
+            const apiKey = await skapi.clientSecretRequest('aiart');
+            const res = await fetch('https://api.openai.com/v1/images/generations', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${apiKey}`
+                },
+                body: JSON.stringify({ prompt: `${prompt} in style of ${artist}`, n: 1, size: '512x512' })
+            });
+            const data = await res.json();
+            if(data.data && data.data[0]) {
+                img.src = data.data[0].url;
+            }
+            else {
+                alert('Failed to generate image');
+            }
+        } catch(err) {
+            alert(err.message);
+        }
+    });
+</script>
+</body>
+</html>
