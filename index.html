@@ -60,17 +60,21 @@
         const artist = document.getElementById('artist').value;
         const img = document.getElementById('result');
         try {
-            const apiKey = await skapi.clientSecretRequest('aiart');
-            const res = await fetch('https://api.openai.com/v1/images/generations', {
+            const data = await skapi.clientSecretRequest({
+                clientSecretName: 'aiart',
+                url: 'https://api.openai.com/v1/images/generations',
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${apiKey}`
+                    'Authorization': 'Bearer $CLIENT_SECRET'
                 },
-                body: JSON.stringify({ prompt: `${prompt} in style of ${artist}`, n: 1, size: '512x512' })
+                data: {
+                    prompt: `${prompt} in style of ${artist}`,
+                    n: 1,
+                    size: '512x512'
+                }
             });
-            const data = await res.json();
-            if(data.data && data.data[0]) {
+            if (data.data && data.data[0]) {
                 img.src = data.data[0].url;
             }
             else {
